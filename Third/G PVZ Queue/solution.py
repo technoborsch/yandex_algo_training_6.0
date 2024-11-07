@@ -1,43 +1,39 @@
+from collections import deque
+
+
 class Solution:
 
     @staticmethod
     def get_input():
         with open("input.txt", "r") as f:
             raw = f.readlines()
-            n, crudeness = list(map(int, raw[0].split()))
-            string = raw[1]
-        return n, crudeness, string
+            n, b = list(map(int, raw[0].split()))
+            clients = list(map(int, raw[1].split()))
+        return n, b, clients
 
     @staticmethod
-    def solve(n: int, crudeness: int, string: str) -> int:
+    def solve(n: int, b: int, clients: list[str]) -> int:
         result = 0
-        a_pref = [0]
-        b_pref = [0]
-        for i, sym in enumerate(string):
-            if sym == "a":
-                a_pref.append(a_pref[i] + 1)
-                b_pref.append(b_pref[i])
-            elif sym == "b":
-                b_pref.append(b_pref[i] + 1)
-                a_pref.append(a_pref[i])
-            else:
-                b_pref.append(b_pref[i])
-                a_pref.append(a_pref[i])
+        current_customers = 0
+        q = deque()
+        for i in range(n):
 
-        this_crudeness = 0
-        left = right = 0
-        while left < len(string) - 1 and right < len(string) - 1:
-            if this_crudeness <= crudeness:
-                result = max(result, right - left + 1)
-                if right < len(string) - 1:
-                    right += 1
-                if string[right] == "b":
-                    this_crudeness += a_pref[right + 1] - a_pref[left]
-            else:
-                if string[left] == "a":
-                    this_crudeness -= b_pref[right + 1] - b_pref[left]
-                if left < len(string) - 1:
-                    left += 1
+            q.appendleft(clients[i])
+            current_customers += clients[i]
+            result += current_customers
+
+            this_perf = b
+            while this_perf:
+                if q and this_perf > q[-1]:
+                    this_perf -= q.pop()
+                elif q and this_perf <= q[-1]:
+                    q[-1] -= this_perf
+                    this_perf = 0
+                else:
+                    this_perf = 0
+
+            current_customers -= this_perf
+
         return result
 
     def solve_from_input(self):

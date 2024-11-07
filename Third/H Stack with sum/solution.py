@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Solution:
 
     @staticmethod
@@ -5,39 +8,42 @@ class Solution:
         with open("input.txt", "r") as f:
             raw = f.readlines()
             n = int(raw[0])
-            nums = list(map(int, raw[1].split()))
-        return n, nums
+            operations = raw[1:]
+        return n, operations
 
     @staticmethod
-    def solve(n: int, nums: list[int]) -> int:
-        result = None
-        lr_sum = [0]
-        for i, num in enumerate(nums):
-            lr_sum.append(lr_sum[i] + num)
-
-        for i in range(1, len(nums) + 1):
-            lr_sum[i] = lr_sum[i] + lr_sum[i - 1]
-
-        rl_sum = [0]
-        for i in range(len(nums) -1, -1, -1):
-            num = nums[i]
-            rl_sum.append(rl_sum[len(nums) - 1 - i] + num)
-
-        for i in range(1, len(nums) + 1):
-            rl_sum[i] = rl_sum[i] + rl_sum[i - 1]
-
-        for i in range(len(nums)):
-            moves_left = lr_sum[i] - lr_sum[0]
-            moves_right = rl_sum[len(nums) - 1 - i] - rl_sum[0]
-            moves = moves_left + moves_right
-            if result is None:
-                result = moves
-            elif moves < result:
-                result = moves
+    def solve(n: int, operations: list[str]) -> list[int]:
+        result = []
+        s = StackSum()
+        for operation in operations:
+            if operation.startswith("+"):
+                s.add(int(operation[1:]))
+            elif operation.startswith("-"):
+                print(s.pop())
+            elif operation.startswith("?"):
+                print(s.n_sum(int(operation[1:])))
         return result
 
     def solve_from_input(self):
-        print(self.solve(*self.get_input()))
+        self.solve(*self.get_input())
+
+
+class StackSum:
+
+    def __init__(self):
+        self.s = deque()
+        self.ps = [0]
+
+    def add(self, num):
+        self.s.append(num)
+        self.ps.append(self.ps[-1] + num)
+
+    def pop(self):
+        self.ps.pop()
+        return self.s.pop()
+
+    def n_sum(self, n):
+        return self.ps[-1] - self.ps[-n - 1]
 
 
 if __name__ == "__main__":
