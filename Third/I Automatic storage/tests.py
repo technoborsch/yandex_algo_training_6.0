@@ -1,14 +1,24 @@
 import unittest
+import psutil
+import os
 from time import perf_counter
 
-from solution import Solution
-from cases import cases
+from solution import can_go
+from cases import cases, priority_cases, stress_case
 
 
 class TestSolution(unittest.TestCase):
 
     def setUp(self):
-        self.solution = Solution()
+        pass
+
+    def test_can_go(self):
+        counter = 0
+        for case, answer in priority_cases:
+            with self.subTest(f"Priority test case {counter}, case: {case}"):
+                counter += 1
+                result = can_go(*case)
+                self.assertEqual(answer, result)
 
     def test_solution(self):
         counter = 0
@@ -16,23 +26,24 @@ class TestSolution(unittest.TestCase):
             with self.subTest(f"Test case {counter}, case: {case}"):
                 counter += 1
                 n, interest_rates, useful_rates, mood = case
-                time1 = perf_counter()
                 result = self.solution.solve(n, interest_rates, useful_rates, mood)
-                time2 = perf_counter()
-                print(f"Execution time: {time2 - time1} sec")
                 self.assertEqual(answer, result)
 
-    # def test_max(self):
-    #     n = 100_000
-    #     interest_rates = range(1, 100_001)
-    #     useful_rates = range(1, 100_001)
-    #     mood = [1] * 100_000
-    #     answer = [n for n in range(1, 100_001)]
-    #     time1 = perf_counter()
-    #     result = self.solution.solve(n, interest_rates, useful_rates, mood)
-    #     time2 = perf_counter()
-    #     self.assertLess(time2 - time1, 1)
-    #     self.assertEqual(result, answer)
+    def test_performance(self):
+        case, answer = stress_case
+        time1 = perf_counter()
+        result = self.solution.solve(*case)
+        time2 = perf_counter()
+        print(f"Execution took {time2 - time1} sec")
+        self.assertEqual(answer, result)
+
+    def test_memory(self):
+        case, answer = stress_case
+        result = self.solution.solve(*case)
+        process = psutil.Process(os.getpid())
+        mem = process.memory_info()[0] / float(2 ** 20)
+        print(f"Execution took {mem} MB")
+        self.assertEqual(answer, result)
 
 
 if __name__ == "__main__":

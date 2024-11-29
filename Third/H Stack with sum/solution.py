@@ -19,13 +19,14 @@ class Solution:
             if operation.startswith("+"):
                 s.add(int(operation[1:]))
             elif operation.startswith("-"):
-                print(s.pop())
+                result.append(s.pop())
             elif operation.startswith("?"):
-                print(s.n_sum(int(operation[1:])))
+                result.append(s.n_sum(int(operation[1:])))
         return result
 
     def solve_from_input(self):
-        self.solve(*self.get_input())
+        for item in self.solve(*self.get_input()):
+            print(item)
 
 
 class StackSum:

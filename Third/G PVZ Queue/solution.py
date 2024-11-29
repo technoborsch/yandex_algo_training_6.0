@@ -1,6 +1,3 @@
-from collections import deque
-
-
 class Solution:
 
     @staticmethod
@@ -15,25 +12,16 @@ class Solution:
     def solve(n: int, b: int, clients: list[str]) -> int:
         result = 0
         current_customers = 0
-        q = deque()
         for i in range(n):
-
-            q.appendleft(clients[i])
             current_customers += clients[i]
             result += current_customers
 
-            this_perf = b
-            while this_perf:
-                if q and this_perf > q[-1]:
-                    this_perf -= q.pop()
-                elif q and this_perf <= q[-1]:
-                    q[-1] -= this_perf
-                    this_perf = 0
-                else:
-                    this_perf = 0
-
-            current_customers -= this_perf
-
+            if b > current_customers:
+                current_customers = 0
+            else:
+                current_customers -= b
+        if current_customers:
+            result += current_customers
         return result
 
     def solve_from_input(self):
